@@ -1,35 +1,38 @@
 import React from 'react';
-import { Container, Header, Content, Card, CardItem, Text, Icon, Right, Body, Left } from 'native-base';
+import { Container, Header, Content, Card, CardItem, Text, Icon, Right, Body, Left, Button } from 'native-base';
+import SCREEN_IMPORT from 'Dimensions';
+
+const SCREEN_WIDTH = SCREEN_IMPORT.get('window').width
+const SCREEN_HEIGHT = SCREEN_IMPORT.get('window').height
 
 export class CategoryCard extends React.Component {
   render() {
     return (
         <Container>
-        <Content contentContainerStyle= {{justifyContent: 'center', alignItems: 'center', paddingTop: 5, paddingHorizontal: 5}}>
-          <Card style={{width:300}}>
-            <CardItem>               
+        <Content contentContainerStyle= {{alignItems: 'center', paddingTop: 5, paddingHorizontal: 5}}>
+          <Card style={{width:(SCREEN_WIDTH*0.85)}}>
+            <CardItem bordered button onPress={()=>alert("This is Card Body")}>               
                 <Body>
                   <Left>
-                    <Text>Category Name</Text>
-                    <Text note>Ongoing</Text>
-                  </Left>           
+                    <Text style={{fontSize:20}}>Category Name</Text>
+                    <Text note>Target: 19/07/2020</Text>
+                  </Left>                         
                 </Body> 
-                <Right>
-                  <Text>40%</Text>
+                <Right style={{flexDirection: 'row', justifyContent:'space-between', alignItems:'baseline'}}>
+                  <Text style={{fontSize:20, marginLeft:30, marginRight:20}}>71%</Text>  
+                  
+                  <Button transparent>
+                    <Icon type = 'Entypo' name = 'dots-three-vertical'/>
+                  </Button>
                 </Right>   
             </CardItem>
 
             <CardItem>
-              <Body>
-                <Left>
-                  <Text>$5000/$7000</Text>
-                </Left>
-              </Body>
-              <Right>
-                <Text>Due 19/07/2020</Text>
-              </Right>              
+              <Body style={{flexDirection: 'column', alignItems:'flex-start'}}>
+                <Text>Amount Saved: $5000</Text>
+                <Text>Goal Amount: $7000</Text>
+              </Body>      
             </CardItem>
-              
            </Card>
         </Content>
       </Container>

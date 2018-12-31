@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { WebBrowser } from 'expo';
-import { Button, Header, Body, StyleProvider, Text } from 'native-base';
+import { Button, Header, Body, StyleProvider, Text, Right, Icon, Center, Title, Left } from 'native-base';
 import { CategoryCard } from '../components/CategoryCard';
 import { MonoText } from '../components/StyledText';
 import SCREEN_IMPORT from 'Dimensions';
@@ -37,7 +37,7 @@ export default class HomeScreen extends React.Component {
       this.setState({fontsLoaded: true});
     }
     catch (error){
-      console.log('error loading icon fonts', error);
+      console.log('error loading fonts', error);
     }
   }
 
@@ -48,17 +48,23 @@ export default class HomeScreen extends React.Component {
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        <Header>
-          <Text style={{fontSize: 30, color:'white'}}>
-            Goals
-          </Text>
+        <Header noLeft>
+          <Left style={{flex:1}}/>
+          <Body style={{flex:1, justifyContent: "center", alignItems:"center"}}>
+            <Title>Goals</Title>
+          </Body>
+          <Right style={{flex:1}}> 
+            <Button transparent>                 
+              <Icon type="Feather" name="plus" style={{color:"white"}}/>  
+            </Button>         
+          </Right>
         </Header>  
         <View style= {{flexDirection: "row", justifyContent: "space-around", alignItems: "center"}}>
             <Button style={styles.buttonStyle}><Text>Add Savings</Text></Button>
             <Button style={styles.buttonStyle}><Text>Withdraw</Text></Button>
         </View>
 
-          <View style={{justifyContent: "center"}}>
+          <View style={{justifyContent: "flex-start"}}>
             <CategoryCard/>
           </View>
         </ScrollView>
