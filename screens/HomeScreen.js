@@ -12,22 +12,25 @@ import { Button, Header, Body, StyleProvider, Text, Right, Icon, Center, Title, 
 import { CategoryCard } from '../components/CategoryCard';
 import { MonoText } from '../components/StyledText';
 import SCREEN_IMPORT from 'Dimensions';
+import { createStackNavigator, createAppContainer } from 'react-navigation';
   
 
 const SCREEN_WIDTH = SCREEN_IMPORT.get('window').width
 const SCREEN_HEIGHT = SCREEN_IMPORT.get('window').height
 
 
-export default class HomeScreen extends React.Component {
+class HomeScreen extends React.Component {
+  
+  static navigationOptions = {
+    header: null,
+  };
+
   
   state = {
     fontsLoaded: false
   }
 
-  static navigationOptions = {
-    header: null,
-  };
-
+  
   async componentWillMount() {
     try{
       await Expo.Font.loadAsync({
@@ -45,6 +48,7 @@ export default class HomeScreen extends React.Component {
     if (!this.state.fontsLoaded) {
       return <Expo.AppLoading />;
     }
+    
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -54,7 +58,7 @@ export default class HomeScreen extends React.Component {
             <Title>Goals</Title>
           </Body>
           <Right style={{flex:1}}> 
-            <Button transparent>                 
+            <Button transparent onPress={() => this.props.navigation.navigate('NewCategory')}>                 
               <Icon type="Feather" name="plus" style={{color:"white"}}/>  
             </Button>         
           </Right>
@@ -65,7 +69,7 @@ export default class HomeScreen extends React.Component {
         </View>
 
           <View style={{justifyContent: "flex-start"}}>
-            <CategoryCard/>
+            <CategoryCard navigation={this.props.navigation}/>
           </View>
         </ScrollView>
 
@@ -76,6 +80,8 @@ export default class HomeScreen extends React.Component {
     );
   }
 }
+
+export default HomeScreen;
 
 const styles = StyleSheet.create({
 

@@ -6,12 +6,18 @@ const SCREEN_WIDTH = SCREEN_IMPORT.get('window').width
 const SCREEN_HEIGHT = SCREEN_IMPORT.get('window').height
 
 export class CategoryCard extends React.Component {
+
+  constructor(props){
+    super(props);
+  }
   render() {
+
     return (
+      
         <Container>
         <Content contentContainerStyle= {{alignItems: 'center', paddingTop: 5, paddingHorizontal: 5}}>
           <Card style={{width:(SCREEN_WIDTH*0.85)}}>
-            <CardItem bordered button onPress={()=>alert("This is Card Body")}>               
+            <CardItem bordered button onPress={() => this.props.navigation.navigate('CategoryDetails')}>               
                 <Body>
                   <Left>
                     <Text style={{fontSize:20}}>Category Name</Text>
