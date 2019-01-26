@@ -9,6 +9,13 @@ export class CategoryCard extends React.Component {
 
   constructor(props){
     super(props);
+    /*
+    this.state = {
+      name: this.props.data.name,
+      targetDate: this.props.data.targetDate,
+      savedAmount: this.props.data.savedAmount,
+      goalAmount: this.props.data.goalAmount,
+    }*/
   }
   render() {
 

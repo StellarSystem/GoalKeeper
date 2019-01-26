@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Button, Header, Body, StyleProvider, Text, Right, Icon, Center, Title, Left, Container } from 'native-base';
+import { Button, Header, Body, StyleProvider, Text, Right, Icon, Center, Title, Left, Content, Container, DatePicker, Form, Item, Input, Label} from 'native-base';
+import { SQLite } from 'expo';
 import SCREEN_IMPORT from 'Dimensions';
   
 
@@ -15,20 +16,17 @@ const SCREEN_WIDTH = SCREEN_IMPORT.get('window').width
 const SCREEN_HEIGHT = SCREEN_IMPORT.get('window').height
 
 
-export default class CategoryDetails extends React.Component {
+class AddSavings extends React.Component {
 
-  constructor(props){
+  constructor(props) {
     super(props);
-    this.state = {
-      name: "Category Name",
-      targetDate: "19/07/2020",
-      savedAmount: "5000",
-      goalAmount: "7000",
-      percentSaved: "71"
-    }
+    this.state = { chosenDate: null };
+    this.setDate = this.setDate.bind(this);
   }
+
   static navigationOptions = {
     header: null,
+    visible: false,
   };
 
   render() {
@@ -40,22 +38,33 @@ export default class CategoryDetails extends React.Component {
               <Icon name='arrow-back' />
             </Button>
           </Left>
-          <Body>
-              <Title>Category Details</Title>
+          <Body>            
+              <Title>Add Savings</Title>
           </Body>
         </Header>  
 
-        <Container>
-            <Text>{ this.state.name } </Text>
-            <Text>Target Date: {targetDate}</Text> 
-            <Text>${savedAmount}/${goalAmount}</Text>
-            <Text>{this.state.percentSaved}%</Text>
-        </Container>
+        <Content>
+          <Form>
+              <Item floatingLabel>
+                <Label>Total Savings</Label>
+                <Input />
+              </Item>
+              <Item floatingLabel>
+                <Label>Goal Amount (Optional)</Label>
+                <Input />
+              </Item>
+            </Form>
+            <Button>
+              <Text>Finish!</Text>
+            </Button>
+        </Content>
         
       </Container>
     );
   }
 }
+
+export default NewCategory;
 
 const styles = StyleSheet.create({
 

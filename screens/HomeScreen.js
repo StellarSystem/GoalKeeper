@@ -7,13 +7,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { WebBrowser } from 'expo';
-import { Button, Header, Body, StyleProvider, Text, Right, Icon, Center, Title, Left } from 'native-base';
+
+import { Button, Header, Body, StyleProvider, Text, Right, Icon, Center, Title, Left, Container } from 'native-base';
 import { CategoryCard } from '../components/CategoryCard';
 import { MonoText } from '../components/StyledText';
 import SCREEN_IMPORT from 'Dimensions';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
-  
+import _ from "lodash";
+
 
 const SCREEN_WIDTH = SCREEN_IMPORT.get('window').width
 const SCREEN_HEIGHT = SCREEN_IMPORT.get('window').height
@@ -21,16 +22,41 @@ const SCREEN_HEIGHT = SCREEN_IMPORT.get('window').height
 
 class HomeScreen extends React.Component {
   
+
+  state = {
+    fontsLoaded: false,
+    loading: false,
+    categories: []
+  }
+
   static navigationOptions = {
     header: null,
   };
 
-  
-  state = {
-    fontsLoaded: false
+  update(){
+    db.transaction(tx => {
+      tx.executeSql(
+        `select * from categories;`,
+        (_, { rows: { _array } }) => this.setState({ items: _array })
+      );
+    });
   }
 
-  
+  async componentDidMount(){
+    try{
+      var db = Database.getConnection();
+      var createCategory = "create table if not exists category (id integer primary key not null, name text not null, saved float not null, goal float not null, date text);"
+      var createLog = "create table if not exists log (id integer primary key not null, cat_id int not null, date text not null, amount float not null, FOREIGN KEY (cat_id) REFERENCES category (id) ON DELETE CASCADE ON UPDATE NO ACTION)"
+      db.transaction(tx => {
+        tx.executeSql(createCategory);
+        tx.executeSql(createLog)
+      });
+    } 
+    catch(error){
+      console.log("error loading database", error)
+    } 
+  }
+
   async componentWillMount() {
     try{
       await Expo.Font.loadAsync({
@@ -48,9 +74,11 @@ class HomeScreen extends React.Component {
     if (!this.state.fontsLoaded) {
       return <Expo.AppLoading />;
     }
+
+    const {categories, loading } = this.state;
     
     return (
-      <View style={styles.container}>
+      <Container>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <Header noLeft>
           <Left style={{flex:1}}/>
@@ -63,20 +91,29 @@ class HomeScreen extends React.Component {
             </Button>         
           </Right>
         </Header>  
-        <View style= {{flexDirection: "row", justifyContent: "space-around", alignItems: "center"}}>
+        <View style= {{flexDirection: "row", justifyContent: "space-around", paddingTop: 5, alignItems: "center"}}>
             <Button style={styles.buttonStyle}><Text>Add Savings</Text></Button>
             <Button style={styles.buttonStyle}><Text>Withdraw</Text></Button>
         </View>
-
+        
+        {loading ? (
+            <Icon name = 'spinner' />
+          ) : null}
+          { _.isEmpty(categories) || loading ? (
+          <View style={{paddingTop: 20, alignItems: "center"}}>
+            <Text>Get started by adding a savings category!</Text>
+          </View> 
+          ) : (         
           <View style={{justifyContent: "flex-start"}}>
             <CategoryCard navigation={this.props.navigation}/>
-          </View>
+          </View> 
+        )}
         </ScrollView>
 
         <View style={styles.tabBarInfoContainer}>
           <Text style={styles.tabBarInfoText}>Total Savings: $5000</Text>
         </View>
-      </View>
+      </Container>
     );
   }
 }

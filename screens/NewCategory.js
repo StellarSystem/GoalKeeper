@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Button, Header, Body, StyleProvider, Text, Right, Icon, Center, Title, Left, Content, Container, DatePicker, Form, Item, Input, Label} from 'native-base';
+import { Button, Header, Body, TextInput, Text, Right, Icon, Center, Title, Left, Content, Container, DatePicker, Form, Item, Input, Label} from 'native-base';
 import SCREEN_IMPORT from 'Dimensions';
   
 
@@ -19,11 +19,33 @@ class NewCategory extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { chosenDate: null };
+    this.state = { 
+      goalDate: null, 
+      categoryName = null,
+      goalAmount = null
+    };
     this.setDate = this.setDate.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleClear = this.handleClear.bind(this);
   }
-  setDate(newDate) {
-    this.setState({ chosenDate: newDate });
+
+  updateValue = name => event =>{
+    this.setState({[name]: event.target.value});
+  };
+
+  handleSubmit(event) {
+    event.preventDefault();
+    var db = Database.getConnection();
+    db.transaction(
+      tx => {
+        tx.executeSql('insert into category (saved, name, goal, date) values (0, ?, ?, ?)', [this.state.categoryName, this.state.goalAmount, this.state.goalDate]);
+        tx.executeSql('select * from category', [], (_, { rows }) =>
+          console.log(JSON.stringify(rows))
+        );
+      },
+      null,
+      this.handleSubmit
+    );
   }
 
   static navigationOptions = {
@@ -46,21 +68,35 @@ class NewCategory extends React.Component {
         </Header>  
 
         <Content>
-          <Form>
-              <Item floatingLabel>
+          <Form
+          onSubmit={this.handleSubmit}
+          >
+              <Item floatingLabel >
                 <Label>Category Name</Label>
-                <Input />
+                <Input 
+                 value = {this.state.categoryName}
+                 onChange={this.updateValue("categoryName")}
+                />
               </Item>
               <Item floatingLabel>
                 <Label>Goal Amount (Optional)</Label>
-                <Input />
+                <Input 
+                 value={this.state.goalAmount}
+                 onChange={this.updateValue("goalAmount")}
+                 />
+              </Item>
+              <Item floatingLabel>
+                <Label>Goal Date (Optional)</Label>
+                <Input 
+                 value={this.state.chosenDote}
+                 onChange={this.updateValue("goalDate")}
+                 />
               </Item>
             </Form>
-            <Button>
+            <Button type="submit" value="Post">
               <Text>Finish!</Text>
             </Button>
-        </Content>
-        
+        </Content>       
       </Container>
     );
   }
