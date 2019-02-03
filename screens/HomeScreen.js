@@ -7,66 +7,111 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
+import PropTypes from "prop-types";
+import { SQLite } from 'expo';
 import { Button, Header, Body, StyleProvider, Text, Right, Icon, Center, Title, Left, Container } from 'native-base';
 import { CategoryCard } from '../components/CategoryCard';
+import Database from "../database";
 import { MonoText } from '../components/StyledText';
 import SCREEN_IMPORT from 'Dimensions';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import _ from "lodash";
 
-
 const SCREEN_WIDTH = SCREEN_IMPORT.get('window').width
 const SCREEN_HEIGHT = SCREEN_IMPORT.get('window').height
 
-
 class HomeScreen extends React.Component {
-  
 
-  state = {
-    fontsLoaded: false,
-    loading: false,
-    categories: []
+  constructor(props){
+    super(props);
+    this.state = {
+      fontsLoaded: false,
+      loading: false,
+      categories: []
+    }
+    Database.initaliseTables();
+    this.updateCategories = this.updateCategories.bind(this);
+    this.getCategorySuccess = this.getCategorySuccess.bind(this);
   }
-
+  
   static navigationOptions = {
     header: null,
-  };
+  }; 
 
-  update(){
+ /* static updateCategories(catArray){
+    if(catArray != null){
+      console.log("connection get");
+      console.log(JSON.stringify(catArray))
+      this.setState({ categories: catArray});
+    } else {
+      console.log("no")
+    }
+}*/
+
+  updateCategories(){
+    var db = Database.getConnection()
     db.transaction(tx => {
-      tx.executeSql(
-        `select * from categories;`,
-        (_, { rows: { _array } }) => this.setState({ items: _array })
-      );
-    });
+        tx.executeSql('select * from category;', [], this.getCategorySuccess, this.getCategoryFail
+    );
+    })
   }
+
+  getCategorySuccess(tx, { rows }){
+      var size = rows.length 
+      console.log("updating")
+      if(size > 0){
+          console.log("Updated nicely")
+          console.log(JSON.stringify({ rows }))
+          var arr = rows._array
+          console.log(JSON.stringify(arr))
+          var catArray = JSON.stringify(arr)
+          this.setState({ categories: catArray});
+      } else {
+          console.log("nothing here")
+          return null
+      }
+  }
+
+  getCategoryFail(error){
+      console.log("didn't update well", error)
+      return null
+  }
+      
+    /*
+      db.transaction(tx => {
+        tx.executeSql(
+          'select * from categories;', [],  (tx, { rows }) => { 
+            var size = rows.length
+            console.log("updating")
+            console.log(JSON.stringify({ rows }))
+            if(size > 0){
+              this.setState({ categories: rows._array})
+            }
+            console.log("Updated nicely"),
+          (_, error) => console.log("didn't update well", error)
+          }    
+        );
+      });
+  }*/
+
+/*
+   async componentDidMount(){
+      this.updateCategories();
+      console.log(this.state.categories)
+      console.log('we updated!')
+  } */
 
   async componentDidMount(){
-    try{
-      var db = Database.getConnection();
-      var createCategory = "create table if not exists category (id integer primary key not null, name text not null, saved float not null, goal float not null, date text);"
-      var createLog = "create table if not exists log (id integer primary key not null, cat_id int not null, date text not null, amount float not null, FOREIGN KEY (cat_id) REFERENCES category (id) ON DELETE CASCADE ON UPDATE NO ACTION)"
-      db.transaction(tx => {
-        tx.executeSql(createCategory);
-        tx.executeSql(createLog)
-      });
-    } 
-    catch(error){
-      console.log("error loading database", error)
-    } 
-  }
-
-  async componentWillMount() {
     try{
       await Expo.Font.loadAsync({
         'Roboto': require('native-base/Fonts/Roboto.ttf'),
         'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
       });
       this.setState({fontsLoaded: true});
+      this.updateCategories();
     }
     catch (error){
-      console.log('error loading fonts', error);
+      console.log('error loading fonts or database', error);
     }
   }
 
@@ -76,7 +121,6 @@ class HomeScreen extends React.Component {
     }
 
     const {categories, loading } = this.state;
-    
     return (
       <Container>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -92,8 +136,8 @@ class HomeScreen extends React.Component {
           </Right>
         </Header>  
         <View style= {{flexDirection: "row", justifyContent: "space-around", paddingTop: 5, alignItems: "center"}}>
-            <Button style={styles.buttonStyle}><Text>Add Savings</Text></Button>
-            <Button style={styles.buttonStyle}><Text>Withdraw</Text></Button>
+            <Button style={styles.buttonStyle}><Text>Save</Text></Button>
+            <Button style={styles.buttonStyle}><Text>Spend</Text></Button>
         </View>
         
         {loading ? (

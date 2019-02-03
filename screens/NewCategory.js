@@ -9,8 +9,9 @@ import {
 } from 'react-native';
 import { Button, Header, Body, TextInput, Text, Right, Icon, Center, Title, Left, Content, Container, DatePicker, Form, Item, Input, Label} from 'native-base';
 import SCREEN_IMPORT from 'Dimensions';
-  
-
+import Database from "../database";
+import PropTypes from "prop-types";
+import updateCategories from './HomeScreen'
 const SCREEN_WIDTH = SCREEN_IMPORT.get('window').width
 const SCREEN_HEIGHT = SCREEN_IMPORT.get('window').height
 
@@ -21,31 +22,49 @@ class NewCategory extends React.Component {
     super(props);
     this.state = { 
       goalDate: null, 
-      categoryName = null,
-      goalAmount = null
+      categoryName: null,
+      goalAmount: null
     };
-    this.setDate = this.setDate.bind(this);
+    /*this.setDate = this.setDate.bind(this);
+    this.handleClear = this.handleClear.bind(this);*/
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleClear = this.handleClear.bind(this);
+
+    
   }
 
   updateValue = name => event =>{
-    this.setState({[name]: event.target.value});
+    console.log(event.nativeEvent.text);
+    this.setState({[name]: event.nativeEvent.text});
+    
   };
-
-  handleSubmit(event) {
-    event.preventDefault();
+  
+  //TODO: finish new category creation
+  handleSubmit() {
+    
     var db = Database.getConnection();
-    db.transaction(
-      tx => {
-        tx.executeSql('insert into category (saved, name, goal, date) values (0, ?, ?, ?)', [this.state.categoryName, this.state.goalAmount, this.state.goalDate]);
-        tx.executeSql('select * from category', [], (_, { rows }) =>
-          console.log(JSON.stringify(rows))
-        );
-      },
-      null,
-      this.handleSubmit
-    );
+    try{
+      db.transaction(
+        tx => {
+          tx.executeSql('insert into category (saved, name, goal, date) values (0, ?, ?, ?);', 
+          [this.state.categoryName, this.state.goalAmount, this.state.goalDate],
+          (_, { rows }) => console.log(JSON.stringify(rows)),
+          (_, error) => console.log("Could not insert into category", error)
+          );
+          tx.executeSql('select * from category', [], (_, { rows }) =>console.log(JSON.stringify(rows)),
+          );
+        },
+      );
+      
+    }
+    catch(error){
+      console.log("Could not create new category", error)
+    }  
+
+    /*
+    alert('A goalDate was submitted: ' + this.state.goalDate);
+    alert('A categoryName was submitted: ' + this.state.categoryName);
+    alert('A goalAmount was submitted: ' + this.state.goalAmount);
+*/
   }
 
   static navigationOptions = {
@@ -68,10 +87,8 @@ class NewCategory extends React.Component {
         </Header>  
 
         <Content>
-          <Form
-          onSubmit={this.handleSubmit}
-          >
-              <Item floatingLabel >
+          <Form onSubmit={this.handleSubmit}>
+               <Item floatingLabel >
                 <Label>Category Name</Label>
                 <Input 
                  value = {this.state.categoryName}
@@ -88,12 +105,12 @@ class NewCategory extends React.Component {
               <Item floatingLabel>
                 <Label>Goal Date (Optional)</Label>
                 <Input 
-                 value={this.state.chosenDote}
+                 value={this.state.goalDate}
                  onChange={this.updateValue("goalDate")}
                  />
               </Item>
             </Form>
-            <Button type="submit" value="Post">
+            <Button type="submit" value="Submit" onPress={() => this.handleSubmit()}>
               <Text>Finish!</Text>
             </Button>
         </Content>       
