@@ -9,14 +9,33 @@ export class CategoryCard extends React.Component {
 
   constructor(props){
     super(props);
-    /*
     this.state = {
       name: this.props.data.name,
-      targetDate: this.props.data.targetDate,
-      savedAmount: this.props.data.savedAmount,
-      goalAmount: this.props.data.goalAmount,
-    }*/
+      targetDate: this.props.data.date,
+      savedAmount: this.props.data.saved,
+      goalAmount: this.props.data.goal,
+      percentSaved: 0
+    }
+    this.findPercentage = this.findPercentage.bind(this)
+    
   }
+
+  async componentDidMount(){
+    try{
+      this.findPercentage();
+    }
+    catch (error){
+      console.log('error finding percentage', error);
+    }
+  }
+
+
+  findPercentage(){
+    var percent = parseInt(this.state.savedAmount, 10)/parseInt(this.state.goalAmount, 10)
+    console.log(percent)
+    this.setState({percentSaved: percent})
+  }
+
   render() {
 
     return (
@@ -27,12 +46,12 @@ export class CategoryCard extends React.Component {
             <CardItem bordered button onPress={() => this.props.navigation.navigate('CategoryDetails')}>               
                 <Body>
                   <Left>
-                    <Text style={{fontSize:20}}>Category Name</Text>
-                    <Text note>Target: 19/07/2020</Text>
+                    <Text style={{fontSize:20}}>{this.state.name}</Text>
+                    <Text note>Target: {this.state.targetDate}</Text>
                   </Left>                         
                 </Body> 
                 <Right style={{flexDirection: 'row', justifyContent:'space-between', alignItems:'baseline'}}>
-                  <Text style={{fontSize:20, marginLeft:30, marginRight:20}}>71%</Text>  
+                  <Text style={{fontSize:20, marginLeft:30, marginRight:20}}>{this.state.percentSaved}%</Text>  
                   
                   <Button transparent>
                     <Icon type = 'Entypo' name = 'dots-three-vertical'/>
@@ -42,8 +61,8 @@ export class CategoryCard extends React.Component {
 
             <CardItem>
               <Body style={{flexDirection: 'column', alignItems:'flex-start'}}>
-                <Text>Amount Saved: $5000</Text>
-                <Text>Goal Amount: $7000</Text>
+                <Text>Amount Saved: ${this.state.savedAmount}</Text>
+                <Text>Goal Amount: ${this.state.goalAmount}</Text>
               </Body>      
             </CardItem>
            </Card>

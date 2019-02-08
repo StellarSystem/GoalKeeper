@@ -6,10 +6,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  FlatList,
 } from 'react-native';
 import PropTypes from "prop-types";
 import { SQLite } from 'expo';
-import { Button, Header, Body, StyleProvider, Text, Right, Icon, Center, Title, Left, Container } from 'native-base';
+import { Button, Header, Body, StyleProvider, Text, Right, Icon, Center, Title, Left, Container, List, ListItem } from 'native-base';
 import { CategoryCard } from '../components/CategoryCard';
 import Database from "../database";
 import { MonoText } from '../components/StyledText';
@@ -61,10 +62,10 @@ class HomeScreen extends React.Component {
       console.log("updating")
       if(size > 0){
           console.log("Updated nicely")
-          console.log(JSON.stringify({ rows }))
+          console.log({ rows })
           var arr = rows._array
-          console.log(JSON.stringify(arr))
-          var catArray = JSON.stringify(arr)
+          console.log(arr)
+          var catArray = arr
           this.setState({ categories: catArray});
       } else {
           console.log("nothing here")
@@ -74,8 +75,9 @@ class HomeScreen extends React.Component {
 
   getCategoryFail(error){
       console.log("didn't update well", error)
-      return null
   }
+
+  keyExtractor = item => item.id.toString()
       
     /*
       db.transaction(tx => {
@@ -93,13 +95,6 @@ class HomeScreen extends React.Component {
         );
       });
   }*/
-
-/*
-   async componentDidMount(){
-      this.updateCategories();
-      console.log(this.state.categories)
-      console.log('we updated!')
-  } */
 
   async componentDidMount(){
     try{
@@ -147,10 +142,14 @@ class HomeScreen extends React.Component {
           <View style={{paddingTop: 20, alignItems: "center"}}>
             <Text>Get started by adding a savings category!</Text>
           </View> 
-          ) : (         
-          <View style={{justifyContent: "flex-start"}}>
-            <CategoryCard navigation={this.props.navigation}/>
-          </View> 
+          ) : (      
+            <FlatList
+            data={this.state.categories}
+            keyExtractor={this.keyExtractor}
+            renderItem={({item}) => (
+            <CategoryCard navigation={this.props.navigation} data={item}/>
+            )}
+            />
         )}
         </ScrollView>
 
